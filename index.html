@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MEETING-O-METER | Effizienz durch Transparenz</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Rubik+Distressed&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-color: #121212;
+            --panel-color: #1e1e1e;
+            --accent-color: #00ffff;
+            --text-color: #e0e0e0;
+            --receipt-bg: #f9f9f9;
+        }
+
+        body {
+            font-family: 'Courier New', Courier, monospace;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        h1 {
+            font-family: 'Courier New', system-ui;
+            font-size: 3.5rem;
+            color: var(--accent-color);
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        /* Info Bereich */
+        .info-section {
+            width: 100%;
+            max-width: 900px;
+            background: #252525;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            font-size: 0.9rem;
+            border-left: 5px solid var(--accent-color);
+        }
+
+        .meter-container {
+            background: var(--panel-color);
+            padding: 30px;
+            border-radius: 15px;
+            border: 3px solid #333;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.7);
+            width: 100%;
+            max-width: 800px;
+        }
+
+        .display-box {
+            background: #000;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 25px;
+            border: 1px solid #444;
+        }
+
+        #total-display {
+            font-size: 4rem;
+            color: var(--accent-color);
+            font-weight: bold;
+            text-shadow: 0 0 15px rgba(255, 77, 77, 0.5);
+        }
+
+        #timer-display {
+            font-size: 1.2rem;
+            color: #888;
+            margin-top: 5px;
+        }
+
+        /* Rollen-Grid */
+        .roles-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .role-card {
+            background: #2a2a2a;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #333;
+        }
+
+        .role-card label {
+            display: block;
+            font-size: 0.75rem;
+            margin-bottom: 5px;
+            color: #bbb;
+        }
+
+        .role-card input {
+            width: 100%;
+            background: #111;
+            border: 1px solid #444;
+            color: var(--accent-color);
+            padding: 8px;
+            border-radius: 3px;
+            box-sizing: border-box;
+            font-family: inherit;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 15px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            font-family: inherit;
+            transition: 0.2s;
+        }
+
+        #start-btn { background: var(--accent-color); color: rgb(0, 0, 0); }
+        #start-btn.running { background: #444; }
+
+        /* Kassenbon */
+        #receipt {
+            display: none;
+            background: var(--receipt-bg);
+            color: #333;
+            width: 350px;
+            padding: 40px 20px;
+            margin-top: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            position: relative;
+        }
+
+        #receipt::after {
+            content: "";
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            width: 100%;
+            height: 10px;
+            background: linear-gradient(-45deg, var(--receipt-bg) 5px, transparent 0), 
+                        linear-gradient(45deg, var(--receipt-bg) 5px, transparent 0);
+            background-size: 10px 10px;
+        }
+
+        .receipt-line { display: flex; justify-content: space-between; margin: 5px 0; font-size: 0.85rem; }
+        .receipt-total { font-size: 1.5rem; font-weight: bold; border-top: 2px dashed #333; margin-top: 10px; padding-top: 10px; }
+        .donation-box { background: #e8f5e9; padding: 15px; margin-top: 20px; border: 1px solid #2e7d32; font-size: 0.8rem; }
+
+
+        .legal-footer {
+            margin-top: 50px;
+            padding: 30px;
+            background: #0a0a0a;
+            border-top: 1px solid #333;
+            font-size: 0.9rem;
+            color: #ffffff;
+            width: 100%;
+            max-width: 900px;
+        }
+
+        .legal-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+        }
+
+        .legal-section h4 {
+            color: #00ffff;
+            margin-top: 0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .legal-note {
+            text-align: center;
+            margin-top: 20px;
+            border-top: 1px solid #222;
+            padding-top: 10px;
+            font-style: italic;
+        }
+
+        a:link {
+            color: #00ffff;
+            background-color: transparent;
+            text-decoration: none;
+            }
+        a:visited {
+            color: #00ffff;
+            background-color: transparent;
+            text-decoration: none;
+            }
+    </style>
+</head>
+<body>
+
+    <h1>Meeting-O-Meter</h1>
+
+    <div class="info-section" id="info">
+        <strong>Status Quo:</strong> Die meisten Meetings sind teure Zeitdiebe. Wir machen das Preisschild sichtbar, das normalerweise niemand sehen will. <br><br>
+        <strong>Kurzanleitung:</strong> <br>
+        1. Anzahl der Teilnehmer pro Rolle eingeben. <br>
+        2. "Meeting Starten" klicken, sobald das Meeting beginnt. <br>
+        3. Teilnehmerzahlen während des Meetings bei Bedarf anpassen. <br>
+        4. Nach dem Stoppen die bittere Realität schwarz auf weiß erhalten.<br><br>
+        <strong>Die gute Sache:</strong> Wenn die Quittung ein Augenöffner ist, würde sich die <strong>Deutsche Krebshilfe</strong> über 10% der vermeintlichen Meetingkosten sicherlich freuen. Link gibt es nach Abschluss des Meetings.
+    </div>
+
+    <div class="meter-container" id="main-app">
+        <div class="display-box">
+            <div id="total-display">0.00 €</div>
+            <div id="timer-display">Dauer: 00:00:00</div>
+        </div>
+
+        <div class="roles-grid">
+            <div class="role-card">
+                <label>Junior (25€/h)</label>
+                <input type="number" id="rate-0" value="0" min="0" data-label="Junior" data-cost="25">
+            </div>
+            <div class="role-card">
+                <label>Medior (35€/h)</label>
+                <input type="number" id="rate-1" value="0" min="0" data-label="Medior" data-cost="35">
+            </div>
+            <div class="role-card">
+                <label>Senior (45€/h)</label>
+                <input type="number" id="rate-2" value="0" min="0" data-label="Senior" data-cost="45">
+            </div>
+            <div class="role-card">
+                <label>Boss (65€/h)</label>
+                <input type="number" id="rate-3" value="0" min="0" data-label="Boss" data-cost="65">
+            </div>
+            <div class="role-card">
+                <label>Indiv. 1 (€/h)</label>
+                <input type="number" id="custom-rate-1" placeholder="Stundensatz" style="margin-bottom:5px;">
+                <input type="number" id="rate-4" value="0" placeholder="Anzahl" data-label="Indiv. 1">
+            </div>
+            <div class="role-card">
+                <label>Indiv. 2 (€/h)</label>
+                <input type="number" id="custom-rate-2" placeholder="Stundensatz" style="margin-bottom:5px;">
+                <input type="number" id="rate-5" value="0" placeholder="Anzahl" data-label="Indiv. 2">
+            </div>
+        </div>
+
+        <button id="start-btn" class="btn" onclick="toggleMeeting()">MEETING STARTEN</button>
+    </div>
+
+    <div id="receipt">
+        <h2 style="text-align:center; margin-top:0;">QUITTUNG</h2>
+        <p id="r-date" style="font-size:0.7rem; text-align:center; margin-bottom: 5px;"></p>
+    
+        <div style="border-top: 1px solid #333; margin: 10px 0;"></div>
+    
+        <div class="receipt-line" style="font-size: 0.75rem; color: #555;">
+        <span>START:</span> <span id="r-start-time"></span>
+        </div>
+        <div class="receipt-line" style="font-size: 0.75rem; color: #555;">
+        <span>ENDE:</span> <span id="r-end-time"></span>
+        </div>
+        <div class="receipt-line" style="font-weight: bold; margin-bottom: 10px;">
+        <span>DAUER:</span> <span id="r-duration-final"></span>
+        </div>
+
+        <div style="border-top: 1px dashed #333; margin: 10px 0;"></div>
+    
+        <div id="receipt-details"></div>
+        
+        <div class="receipt-total">
+            <div class="receipt-line">
+                <span>SUMME</span>
+                <span id="r-total"></span>
+            </div>
+        </div>
+
+        <div class="donation-box">
+            <strong>Spendenempfehlung (10%): <span id="r-donation"></span></strong><br><br>
+            Spendet jetzt an die Deutsche Krebshilfe und macht dieses Meeting sinnvoll.
+        </div>
+        
+        <button class="btn" style="background:#2e7d32; color:white; margin-top:15px;" onclick="window.open('https://www.krebshilfe.de/helfen/rat-tat-hilfe/spenden/', '_blank')">JETZT SPENDEN</button>
+        <button class="btn" style="background:#ccc; color:#333; margin-top:10px; font-size:0.8rem;" onclick="location.reload()">NEUES MEETING</button>
+
+    
+
+    </div>
+
+    <footer class="legal-footer">
+        <div class="legal-content">
+            <div class="legal-section">
+                <h4>Rechtliches & Disclaimer</h4>
+                <p>
+                    Satirisches Tool zur Sensibilisierung. Werte sind Schätzungen auf Basis fiktiver Durchschnittswerte. Nutzung auf eigene Gefahr.
+                </p>
+            </div>
+
+            <div class="legal-section">
+                <h4>Datenschutz</h4>
+                <p>
+                    Zero-Data-Policy: Alles läuft lokal im Browser. Keine Speicherung, kein Tracking.
+                </p>
+            </div>
+
+            <div class="legal-section">
+                <h4>Impressum</h4>
+                <p>
+                    <b><u>Verantwortlich für dieses Projekt:</u></b><br>
+                    Julian Sommer<br>
+                    Langenbochumer Straße 272B<br>
+                    45701 Herten<br>
+                    E-Mail: juliansommer300189@gmail.com
+                    Website: <a href="https://www.taktti.me">taktti.me</a>
+                </p>
+            </div>
+        </div>
+        <div class="legal-note">
+            Hinweis: Dieses Projekt steht in keiner offiziellen Verbindung zur Deutschen Krebshilfe e.V. 
+            Wir unterstützen lediglich deren wertvolle Arbeit durch einen direkten Spendenaufruf.
+        </div>
+    </footer>
+
+    <script>
+        let timer;
+        let isRunning = false;
+        let totalCost = 0;
+        let seconds = 0;
+        // Speicher für akkumulierte Kosten pro Rolle
+        let roleCosts = [0, 0, 0, 0, 0, 0]; 
+        let actualStartTime; // Neu
+        let actualEndTime;   // Neu
+
+        function toggleMeeting() {
+            const btn = document.getElementById('start-btn');
+            if (!isRunning) {
+                isRunning = true;
+                actualStartTime = new Date(); // Startzeitpunkt festhalten
+                btn.innerText = "STOPP (ERGEBNIS ANZEIGEN)";
+                btn.classList.add('running');
+                document.getElementById('info').style.display = 'none';
+                startTicking();
+            } else {
+                actualEndTime = new Date(); // Endzeitpunkt festhalten
+                stopMeeting();
+            }
+        }
+
+        function startTicking() {
+            timer = setInterval(() => {
+                seconds++;
+                updateDisplay();
+            }, 1000);
+        }
+
+        function updateDisplay() {
+            let currentSecondRate = 0;
+
+            for (let i = 0; i < 6; i++) {
+                let count = parseInt(document.getElementById(`rate-${i}`).value) || 0;
+                let hourly = 0;
+
+                if (i < 4) {
+                    hourly = parseInt(document.getElementById(`rate-${i}`).dataset.cost);
+                } else {
+                    hourly = parseInt(document.getElementById(`custom-rate-${i-3}`).value) || 0;
+                }
+
+                let perSecond = (count * hourly) / 3600;
+                roleCosts[i] += perSecond;
+                currentSecondRate += perSecond;
+            }
+
+            totalCost += currentSecondRate;
+            document.getElementById('total-display').innerText = totalCost.toFixed(2) + " €";
+            
+            // Timer Formatierung
+            let hrs = Math.floor(seconds / 3600).toString().padStart(2, '0');
+            let mins = Math.floor((seconds % 3600) / 60).toString().padStart(2, '0');
+            let secs = (seconds % 60).toString().padStart(2, '0');
+            document.getElementById('timer-display').innerText = `Dauer: ${hrs}:${mins}:${secs}`;
+        }
+
+        function stopMeeting() {
+            clearInterval(timer);
+            document.getElementById('main-app').style.display = 'none';
+            document.getElementById('receipt').style.display = 'block';
+            
+            // Zeit-Details auf Quittung schreiben
+            document.getElementById('r-date').innerText = actualStartTime.toLocaleDateString();
+            document.getElementById('r-start-time').innerText = actualStartTime.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'});
+            document.getElementById('r-end-time').innerText = actualEndTime.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'});
+            
+            // Finale Dauer berechnen
+            let hrs = Math.floor(seconds / 3600);
+            let mins = Math.floor((seconds % 3600) / 60);
+            let secs = seconds % 60;
+            document.getElementById('r-duration-final').innerText = `${hrs}h ${mins}m ${secs}s`;
+
+            const detailsDiv = document.getElementById('receipt-details');
+            detailsDiv.innerHTML = "";
+
+            for (let i = 0; i < 6; i++) {
+                if (roleCosts[i] > 0) {
+                    let label = document.getElementById(`rate-${i}`).dataset.label || "Indiv. Rolle";
+                    let count = document.getElementById(`rate-${i}`).value;
+                    let line = document.createElement('div');
+                    line.className = "receipt-line";
+                    line.innerHTML = `<span>${count}x ${label}</span><span>${roleCosts[i].toFixed(2)} €</span>`;
+                    detailsDiv.appendChild(line);
+                }
+            }
+
+            document.getElementById('r-total').innerText = totalCost.toFixed(2) + " €";
+            document.getElementById('r-donation').innerText = (totalCost * 0.10).toFixed(2) + " €";
+        }
+    </script>
+</body>
+</html>
